@@ -13,8 +13,8 @@ Handles input validation, safe rollbacks, and relational integrity.
 """
 
 from sqlalchemy.exc import SQLAlchemyError
-from utils.helpers import clear_screen, pause, get_valid_input, is_non_negative_number, is_phone_number, confirm_action, search_list
-from db_models import Student, Bus
+from utils.helpers import clear_screen, pause, get_valid_input, is_non_negative_number, is_phone_number, confirm_action, search_list, can_delete_record
+from db_models import Student, Bus, Payment
 
 
 # -----------------------------------------------------------------------------
@@ -238,6 +238,10 @@ def delete_student(session):
     if not student:
         print("⚠️ Student not found.")
         pause()
+        return
+
+    # Check for dependent payments
+    if not can_delete_record(session, Payment, Payment.student_id == student.id, "payment"):
         return
 
     # Use confirm_action for better UX

@@ -9,8 +9,8 @@ This CLI menu allows the admin to:
 4. Delete terms (with confirmation to prevent accidental loss).
 """
 
-from utils.helpers import pause, clear_screen, get_valid_input, confirm_action, is_date
-from db_models import Term, AcademicYear
+from utils.helpers import pause, clear_screen, get_valid_input, confirm_action, is_date, can_delete_record
+from db_models import Term, AcademicYear, Payment
 from datetime import datetime
 
 
@@ -239,6 +239,10 @@ def delete_term(session):
     if not term:
         print("❌ Invalid term ID.")
         pause()
+        return
+
+    # Check for dependent payments
+    if not can_delete_record(session, Payment, Payment.term_id == term.id, "payment"):
         return
 
     # Explicit confirmation — avoids unintended data loss

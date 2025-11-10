@@ -147,3 +147,16 @@ def search_list(items: list, search_term: str, key_func=None) -> list:
         return items
     search_term = search_term.lower()
     return [item for item in items if search_term in (key_func(item).lower() if key_func else str(item).lower())]
+
+
+def can_delete_record(session, model, filter_condition, dependency_label):
+    """
+    Checks if dependent records exist before deletion.
+    Returns True if safe to delete, False otherwise.
+    """
+    count = session.query(model).filter(filter_condition).count()
+    if count > 0:
+        print(f"❌ Cannot delete: {count} {dependency_label} record(s) linked.")
+        pause()
+        return False
+    return True

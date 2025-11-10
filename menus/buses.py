@@ -8,8 +8,8 @@ Includes:
 - Delete confirmation before data removal
 """
 
-from utils.helpers import pause, clear_screen, get_valid_input, confirm_action, is_non_negative_integer
-from db_models import Bus, Driver, Attendant
+from utils.helpers import pause, clear_screen, get_valid_input, confirm_action, is_non_negative_integer, can_delete_record
+from db_models import Bus, Driver, Attendant, Student
 from sqlalchemy.orm import Session
 
 
@@ -234,6 +234,10 @@ def delete_bus(session: Session):
     if not bus:
         print("❌ Bus not found.")
         pause()
+        return
+
+    # Check for dependent students
+    if not can_delete_record(session, Student, Student.bus_id == bus.id, "student"):
         return
 
     # Use confirm_action for better UX
